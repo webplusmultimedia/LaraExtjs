@@ -1,0 +1,41 @@
+{
+    "name": "webplusm/laraextjs",
+    "description": ":description",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Webplus Multimedia",
+            "email": "contact@webplusm.net",
+            "homepage": "http://www.webplusm.net"
+        }
+    ],
+    "homepage": "https://github.com/webplusm/laraextjs",
+    "keywords": ["Laravel", "LaraExtjs","Extjs"],
+    "require": {
+        "illuminate/support": "~5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0",
+        "orchestra/testbench": "~3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webplusm\\LaraExtjs\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Webplusm\\LaraExtjs\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webplusm\\LaraExtjs\\LaraExtjsServiceProvider"
+            ],
+            "aliases": {
+                "LaraExtjs": "Webplusm\\LaraExtjs\\Facades\\LaraExtjs"
+            }
+        }
+    }
+}
