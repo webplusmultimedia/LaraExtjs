@@ -9,7 +9,7 @@
             "homepage": "http://www.webplusm.net"
         }
     ],
-    "homepage": "https://github.com/webplusm/laraextjs",
+    "homepage": "https://github.com/webplusmultimedia/LaraExtjs",
     "keywords": ["Laravel", "LaraExtjs","Extjs"],
     "require": {
         "illuminate/support": "~5"
