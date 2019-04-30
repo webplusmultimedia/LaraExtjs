@@ -1,6 +1,6 @@
 {
     "name": "webplusm/laraextjs",
-    "description": ":description",
+    "description": "Laravel package interface for Sencha Extjs - CRUD operation",
     "license": "MIT",
     "authors": [
         {

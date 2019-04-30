@@ -43,8 +43,10 @@
         
         protected $countTotalRows;
         private $request;
-        
-        
+        private $start=0;
+        private $limit=50;
+    
+    
         public function __construct(Request $request)
         {
             
@@ -149,6 +151,13 @@
             if (isset($params['limit'])) {
                 $pagination["limit"] = (int)$params[config('laraextjs.extjs.proxy.limit_param')];
                 $pagination["start"] = (int)$params[config('laraextjs.extjs.proxy.start_param')];
+                if (isset($params[config('laraextjs.extjs.proxy.page_param')])) {
+                    $pagination["page"] = (int)$params[config('laraextjs.extjs.proxy.page_param')];
+                }
+            }
+            else{
+                $pagination["limit"] = $this->limit;
+                $pagination["start"] = $this->start;
                 if (isset($params[config('laraextjs.extjs.proxy.page_param')])) {
                     $pagination["page"] = (int)$params[config('laraextjs.extjs.proxy.page_param')];
                 }
