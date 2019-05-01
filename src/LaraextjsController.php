@@ -45,6 +45,7 @@
         private $request;
         private $start=0;
         private $limit=50;
+        protected $isTotalRowsCount=true;
     
     
         public function __construct(Request $request)
@@ -66,11 +67,15 @@
             /*if ($this->request->get('disableCountResults') == 'true') {
                 $this->setCountTotalRows(false);
             }*/
+    
+            $this->setCountTotalRows($this->isTotalRowsCount);
+            
+            
             if (isset($params[config('laravext.extjs.proxy.start_param')]) &&
                 isset($params[config('laravext.extjs.proxy.limit_param')]) && is_null($this->countTotalRows)
             ) {
             }
-            $this->setCountTotalRows(true);
+            
             
             $this->decodeWriterRoot();
             $this->decodeSorters();
