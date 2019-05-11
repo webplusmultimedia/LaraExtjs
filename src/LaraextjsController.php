@@ -599,8 +599,8 @@
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laravext.extjs.reader.message_property') => "Erreur de création",
-                        "errors"                                         => $validator->getMessageBag()->all()
+                        config('laraextjs.extjs.reader.message_property') => "Erreur de création",
+                        "errors"=> $validator->getMessageBag()->all()
                     ],
                     200
                 );
@@ -609,7 +609,7 @@
                 $this->_model->save();
                 $rootData = method_exists($this->_model, 'filterByKey') ? $this->_model->filterByKey()->first() : $this->_model->toArray();
                 if (isset($this->_data[$this->_model->getKeyName()])) {
-                    $rootData[config('laravext.extjs.client_id_property')] = $this->_data[$this->_model->getKeyName()];
+                    $rootData[config('laraextjs.extjs.client_id_property')] = $this->_data[$this->_model->getKeyName()];
                 }
         
                 return $this->success([$this->readerRootProperty => $rootData]);
@@ -652,7 +652,7 @@
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laravext.extjs.reader.message_property') => "Erreur de modification",
+                        config('laraextjs.extjs.reader.message_property') => "Erreur de modification",
                         "errors"                                         => $validator->getMessageBag()->all()/*, "donnees" => $this->request->all()*/
                     ],
                     200
