@@ -599,8 +599,8 @@
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laraextjs.extjs.reader.message_property') => "Erreur de création",
-                        "errors"=> $validator->getMessageBag()->all()
+                        config('laraextjs.extjs.reader.message_property') => [ 'msg' => "Erreur de création",
+                        "errors"=> $validator->getMessageBag()->all()]
                     ],
                     200
                 );
@@ -652,8 +652,8 @@
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laraextjs.extjs.reader.message_property') => "Erreur de modification",
-                        "errors"                                         => $validator->getMessageBag()->all()/*, "donnees" => $this->request->all()*/
+                        config('laraextjs.extjs.reader.message_property') => [ 'msg' => "Erreur de modification",
+                        "errors"  => $validator->getMessageBag()->all()]
                     ],
                     200
                 );
