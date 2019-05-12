@@ -530,7 +530,7 @@
                 if (!Gate::allows('read', $this->_model)) {
                     return $this->failure(
                         [
-                            config('laravext.extjs.reader.message_property') => $this->messageTxt,
+                            config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized'],
                             "data"  => []
                         ], 200
                     );
@@ -572,7 +572,7 @@
         {
             if ($this->isAdminable) {
                 if (!Gate::allows('post', $this->_model)) {
-                    return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
+                    return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
             return $this->postCreate();
@@ -582,7 +582,7 @@
         {
             if ($this->isAdminable) {
                 if (!Gate::allows('post', $this->_model)) {
-                    return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
+                    return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
             return $this->postCreate();
@@ -590,9 +590,6 @@
         
         public function postCreate()
         {
-            if ($this->isBatchOperation()) {
-                return $this->batchStore($this->_data);
-            }
             $validator = Validator::make($this->_data, $this->_rules);
             if ($validator->fails()) {
                 return $this->failure(
@@ -620,7 +617,7 @@
         {
             if ($this->isAdminable) {
                 if (!Gate::allows('update', $this->_model)) {
-                    return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
+                    return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
         
@@ -629,22 +626,19 @@
     
         public function putUpdate($id)
         {
-            if ($this->isBatchOperation()) {
-                return $this->batchUpdate($this->_data);
-            }
             if (count($this->_data) === 0) {
                 return $this->failure([
-                    'error' => 'nothing_to_update',
+                    'message' => 'Pas de données à mettre à jour',
                     'key'   => $id
-                ], 500);
+                ], 200);
             }
             $model = $this->_model->find($id);
             
             if (is_null($model)) {
                 return $this->failure([
-                    'error' => 'record_not_found',
+                    'message' => 'Pas de ligne à mettre à jour',
                     'key'   => $id
-                ], 500);
+                ], 200);
             }
             $validator = Validator::make($this->_data, $this->_rules);
             if ($validator->fails()) {
@@ -661,9 +655,9 @@
                 
                 if (!$saved) {
                     return $this->failure([
-                        'error' => 'record_not_saved',
+                        config('laravext.extjs.reader.message_property') => 'Erreur de modification <br> un problème est survenu lors de la sauvegarde',
                         'key'   => $id
-                    ], 500);
+                    ], 200);
                 }
                 
                 return $this->success([
@@ -684,6 +678,17 @@
         
         protected function show($id)
         {
+            if ($this->isAdminable) {
+                if (!Gate::allows('read', $this->_model)) {
+                    return $this->failure(
+                        [
+                            config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized'],
+                            "data"  => []
+                        ], 200
+                    );
+                }
+            }
+            $this->messageTxt = "Ok";
             return $this->find($id);
         }
         
@@ -692,27 +697,24 @@
             $this->messageTxt = "Ligne supprimée avec succès";
             if ($this->isAdminable) {
                 if (!Gate::allows('delete', $this->_model)) {
-                    return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
+                    return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-    
-            if ($this->isBatchOperation()) {
-                return $this->batchDestroy($this->_data);
-            }
+           
             $model = $this->_model->find($id);
             if (is_null($model)) {
                 
                 return $this->failure([
-                    'message' => 'record_not_found',
+                    config('laravext.extjs.reader.message_property') => "Erreur de Supression <br>Aucune ligne n'a été trouver",
                     'key'   => $id
-                ], 500);
+                ], 200);
             }
             $deleted = $model->delete();
             if (!$deleted) {
                 return $this->failure([
-                    'message' => 'record_not_deleted',
+                    config('laravext.extjs.reader.message_property') => 'Erreur de Supression <br> Un problème est survenu lors de la suppression',
                     'key'   => $id
-                ], 500);
+                ], 200);
             }
             
             return $this->success();
