@@ -38,7 +38,7 @@
             "notConnected"  => "Vous n'êtes pas Connecté",
             "notAuthorized" => "Vous n'êtes pas autorisé"
         ];
-        protected $isAdminable = false;
+        protected $isAdminable = true;
         const PROFIL_MINIMAL = 4;
         
         
