@@ -13,6 +13,7 @@
     
     
     use App\Http\Controllers\Controller;
+    use Gate;
     use Illuminate\Http\Request;
     use Validator;
     
@@ -526,12 +527,11 @@
         protected function read()
         {
             if ($this->isAdminable) {
-                if (!$this->isAuthorize('read')) {
-                    
+                if (!Gate::allows('read', $this->_model)) {
                     return $this->failure(
                         [
                             config('laravext.extjs.reader.message_property') => $this->messageTxt,
-                            "data"                                           => []
+                            "data"  => []
                         ], 200
                     );
                 }
@@ -571,22 +571,20 @@
         public function store()
         {
             if ($this->isAdminable) {
-                if (!$this->isAuthorize('create')) {
+                if (!Gate::allows('post', $this->_model)) {
                     return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
                 }
             }
-            
             return $this->postCreate();
         }
         
         public function create()
         {
             if ($this->isAdminable) {
-                if (!$this->isAuthorize('create')) {
+                if (!Gate::allows('post', $this->_model)) {
                     return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
                 }
             }
-            
             return $this->postCreate();
         }
         
@@ -621,7 +619,7 @@
         public function update($id)
         {
             if ($this->isAdminable) {
-                if (!$this->isAuthorize('update')) {
+                if (!Gate::allows('update', $this->_model)) {
                     return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
                 }
             }
@@ -693,7 +691,7 @@
         {
             $this->messageTxt = "Ligne supprimée avec succès";
             if ($this->isAdminable) {
-                if (!$this->isAuthorize('delete')) {
+                if (!Gate::allows('delete', $this->_model)) {
                     return $this->failure(["message" => "Vous n'êtes pas autorisé"], 200);
                 }
             }
@@ -705,14 +703,14 @@
             if (is_null($model)) {
                 
                 return $this->failure([
-                    'error' => 'record_not_found',
+                    'message' => 'record_not_found',
                     'key'   => $id
                 ], 500);
             }
             $deleted = $model->delete();
             if (!$deleted) {
                 return $this->failure([
-                    'error' => 'record_not_deleted',
+                    'message' => 'record_not_deleted',
                     'key'   => $id
                 ], 500);
             }
