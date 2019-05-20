@@ -44,11 +44,11 @@
         
         protected $countTotalRows;
         private $request;
-        private $start=0;
-        private $limit=50;
-        protected $isTotalRowsCount=true;
-    
-    
+        private $start = 0;
+        private $limit = 50;
+        protected $isTotalRowsCount = true;
+        
+        
         public function __construct(Request $request)
         {
             
@@ -68,7 +68,7 @@
             /*if ($this->request->get('disableCountResults') == 'true') {
                 $this->setCountTotalRows(false);
             }*/
-    
+            
             $this->setCountTotalRows($this->isTotalRowsCount);
             
             
@@ -160,8 +160,7 @@
                 if (isset($params[config('laraextjs.extjs.proxy.page_param')])) {
                     $pagination["page"] = (int)$params[config('laraextjs.extjs.proxy.page_param')];
                 }
-            }
-            else{
+            } else {
                 $pagination["limit"] = $this->limit;
                 $pagination["start"] = $this->start;
                 if (isset($params[config('laraextjs.extjs.proxy.page_param')])) {
@@ -299,7 +298,60 @@
                                 $query->havingRaw($field . " " . $value['operator'] . " " . DB::raw($value['value']));
                                 
                                 break;
-                            
+    
+                            // filtre par rapport à une relation : Has (contient)
+                            case 'has' :
+                                if(is_array($value)){
+                                    $query->whereHas($field,function($q) use ($value){
+                                        foreach ($value as $i => $v){
+                                            $q->where(head($v),last($v));
+                                        }
+                                    });
+                                }
+                                else
+                                    $query->has($field);
+                                break;
+    
+                            // filtre par rapport à une relation : ou Has (ou contient)
+                            case 'or_has' :
+                                if(is_array($value)){
+                                    $query->orWhereHas($field,function($q) use ($value){
+                                        foreach ($value as $i => $v){
+                                            $q->where(head($v),last($v));
+                                        }
+                                    });
+                                }
+                                else
+                                    $query->orHas($field);
+                                break;
+    
+                            // filtre par rapport à une relation :  doesnt Have (ne contient pas)
+                            case 'not_has' :
+                                if(is_array($value)){
+                                    $query->whereDoesntHave($field,function($q) use ($value){
+                                        foreach ($value as $i => $v){
+                                            $q->where(head($v),last($v));
+                                        }
+                                    });
+                                }
+                                else
+                                    $query->doesntHave($field);
+                                break;
+    
+                            // filtre par rapport à une relation : ou doesnt Have (ou ne contient pas)
+                            case 'or_not_has' :
+                                if(is_array($value)){
+                                    $query->orWhereDoesntHave($field,function($q) use ($value){
+                                        foreach ($value as $i => $v){
+                                            $q->where(head($v),last($v));
+                                        }
+                                    });
+                                }
+                                else
+                                    $query->orDoesntHave($field);
+                                break;
+    
+    
                             case 'like' :
                                 if (!is_array($value) && !empty($value)) {
                                     $valeur = explode(';', $value);
@@ -531,7 +583,7 @@
                     return $this->failure(
                         [
                             config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized'],
-                            "data"  => []
+                            "data"                                           => []
                         ], 200
                     );
                 }
@@ -575,6 +627,7 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
+            
             return $this->postCreate();
         }
         
@@ -585,6 +638,7 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
+            
             return $this->postCreate();
         }
         
@@ -594,8 +648,8 @@
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laraextjs.extjs.reader.message_property') => [ 'msg' => "Erreur de création",
-                        "errors"=> $validator->getMessageBag()->all()]
+                        config('laraextjs.extjs.reader.message_property') => ['msg'    => "Erreur de création",
+                                                                              "errors" => $validator->getMessageBag()->all()]
                     ],
                     200
                 );
@@ -606,13 +660,13 @@
                 if (isset($this->_data[$this->_model->getKeyName()])) {
                     $rootData[config('laraextjs.extjs.client_id_property')] = $this->_data[$this->_model->getKeyName()];
                 }
-        
+                
                 return $this->success([$this->readerRootProperty => $rootData]);
             }
             
         }
-    
-    
+        
+        
         public function update($id)
         {
             if ($this->isAdminable) {
@@ -620,16 +674,16 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-        
+            
             return $this->putUpdate($id);
         }
-    
+        
         public function putUpdate($id)
         {
             if (count($this->_data) === 0) {
                 return $this->failure([
                     'message' => 'Pas de données à mettre à jour',
-                    'key'   => $id
+                    'key'     => $id
                 ], 200);
             }
             $model = $this->_model->find($id);
@@ -637,15 +691,15 @@
             if (is_null($model)) {
                 return $this->failure([
                     'message' => 'Pas de ligne à mettre à jour',
-                    'key'   => $id
+                    'key'     => $id
                 ], 200);
             }
             $validator = Validator::make($this->_data, $this->_rules);
             if ($validator->fails()) {
                 return $this->failure(
                     [
-                        config('laraextjs.extjs.reader.message_property') => [ 'msg' => "Erreur de modification",
-                        "errors"  => $validator->getMessageBag()->all()]
+                        config('laraextjs.extjs.reader.message_property') => ['msg'    => "Erreur de modification",
+                                                                              "errors" => $validator->getMessageBag()->all()]
                     ],
                     200
                 );
@@ -656,7 +710,7 @@
                 if (!$saved) {
                     return $this->failure([
                         config('laravext.extjs.reader.message_property') => 'Erreur de modification <br> un problème est survenu lors de la sauvegarde',
-                        'key'   => $id
+                        'key'                                            => $id
                     ], 200);
                 }
                 
@@ -683,12 +737,13 @@
                     return $this->failure(
                         [
                             config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized'],
-                            "data"  => []
+                            "data"                                           => []
                         ], 200
                     );
                 }
             }
             $this->messageTxt = "Ok";
+            
             return $this->find($id);
         }
         
@@ -700,20 +755,20 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-           
+            
             $model = $this->_model->find($id);
             if (is_null($model)) {
                 
                 return $this->failure([
                     config('laravext.extjs.reader.message_property') => "Erreur de Supression <br>Aucune ligne n'a été trouver",
-                    'key'   => $id
+                    'key'                                            => $id
                 ], 200);
             }
             $deleted = $model->delete();
             if (!$deleted) {
                 return $this->failure([
                     config('laravext.extjs.reader.message_property') => 'Erreur de Supression <br> Un problème est survenu lors de la suppression',
-                    'key'   => $id
+                    'key'                                            => $id
                 ], 200);
             }
             
