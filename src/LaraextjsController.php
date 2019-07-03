@@ -350,7 +350,45 @@
                                 else
                                     $query->orDoesntHave($field);
                                 break;
+                            case 'or_sql' :
+                                if (is_array($field)) {
+                                    foreach ($field as $i => $v) {
+                                        $query->orWhere($v, '!=', $value);
+                                    }
+                                }
+                                break;
     
+                            case 'and_or_sql' :
+                                if (is_array($field)) {
+                                    if (!is_array($value)) {
+                                        $value = explode(',', $value);
+                                    }
+                                    foreach ($field as $i => $f) {
+                
+                                        if (is_array($value) && count($value)) {
+                                            $query->where(function ($q) use ($f, $value) {
+                                                foreach ($value as $v) {
+                                                    switch ($v) {
+                                                        case 'is_null':
+                                                            $q->orWhereNull($f);
+                                                            break;
+                                                        case 'is_not_null':
+                                                            $q->orWhereNotNull($f);
+                                                            break;
+                                                        default:
+                                                            $q->orWhere($f, $v);
+                                                            break;
+                                
+                                                    }
+                            
+                            
+                                                }
+                        
+                                            });
+                                        }
+                                    }
+                                }
+                                break;
     
                             case 'like' :
                                 if (!is_array($value) && !empty($value)) {
