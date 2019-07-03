@@ -352,9 +352,12 @@
                                 break;
                             case 'or_sql' :
                                 if (is_array($field)) {
-                                    foreach ($field as $i => $v) {
-                                        $query->orWhere($v, '!=', $value);
-                                    }
+                                    $query->where(function ($q) use ($value,$field) {
+                                        foreach ($field as $i => $v) {
+                                            $q->orWhere($v, '!=', $value);
+                                        }
+                                    });
+            
                                 }
                                 break;
     
