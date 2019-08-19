@@ -631,8 +631,14 @@
             }
             $this->messageTxt = "Ok";
             
+            $this->beforeRead();
+            
             return $this->index();
             
+        }
+    
+        public function beforeRead()
+        {
         }
         
         protected function index()
@@ -657,8 +663,13 @@
             }
             
             $response[$this->readerRootProperty] = (is_array($data) ? $data : $data->toArray());
+            $this->afterRead();
             
             return $this->success($response);
+        }
+    
+        public function afterRead()
+        {
         }
         
         public function store()
@@ -668,8 +679,12 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-            
+            $this->beforeStore();
             return $this->postCreate();
+        }
+    
+        public function beforeStore()
+        {
         }
         
         public function create()
@@ -701,10 +716,14 @@
                 if (isset($this->_data[$this->_model->getKeyName()])) {
                     $rootData[config('laraextjs.extjs.client_id_property')] = $this->_data[$this->_model->getKeyName()];
                 }
-                
+                $this->afterStore();
                 return $this->success([$this->readerRootProperty => $rootData]);
             }
             
+        }
+    
+        public function afterStore()
+        {
         }
         
         
@@ -715,8 +734,11 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-            
+            $this->beforeUpdate();
             return $this->putUpdate($id);
+        }
+        public function beforeUpdate()
+        {
         }
         
         public function putUpdate($id)
@@ -755,11 +777,16 @@
                     ], 200);
                 }
                 
+                $this->afterUpdate();
                 return $this->success([
                     $this->writerRootProperty => method_exists($model, 'filterByKey') ? $model->filterByKey()->first() : $model->toArray()
                 ]);
             }
             
+        }
+    
+        public function afterUpdate()
+        {
         }
         
         protected function find($id)
@@ -796,7 +823,7 @@
                     return $this->failure([config('laravext.extjs.reader.message_property') => $this->errorMsg['notAuthorized']], 200);
                 }
             }
-            
+            $this->beforeDelete();
             $model = $this->_model->find($id);
             if (is_null($model)) {
                 
@@ -812,8 +839,16 @@
                     'key'                                            => $id
                 ], 200);
             }
-            
+            $this->afterDelete();
             return $this->success();
+        }
+    
+        public function beforeDelete()
+        {
+        }
+    
+        public function afterDelete()
+        {
         }
         
         protected function batchStore(array $collection)
@@ -901,4 +936,6 @@
             
             return false;
         }
+    
+       
     }
