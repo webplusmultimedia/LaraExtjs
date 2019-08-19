@@ -16,6 +16,7 @@
     use Gate;
     use Illuminate\Http\Request;
     use Validator;
+    use function foo\func;
     
     class LaraextjsController extends Controller
     {
@@ -298,76 +299,72 @@
                                 $query->havingRaw($field . " " . $value['operator'] . " " . DB::raw($value['value']));
                                 
                                 break;
-    
+                            
                             // filtre par rapport à une relation : Has (contient)
                             case 'has' :
-                                if(is_array($value)){
-                                    $query->whereHas($field,function($q) use ($value){
-                                        foreach ($value as $i => $v){
-                                            $q->where(head($v),last($v));
+                                if (is_array($value)) {
+                                    $query->whereHas($field, function ($q) use ($value) {
+                                        foreach ($value as $i => $v) {
+                                            $q->where(head($v), last($v));
                                         }
                                     });
-                                }
-                                else
+                                } else
                                     $query->has($field);
                                 break;
-    
+                            
                             // filtre par rapport à une relation : ou Has (ou contient)
                             case 'or_has' :
-                                if(is_array($value)){
-                                    $query->orWhereHas($field,function($q) use ($value){
-                                        foreach ($value as $i => $v){
-                                            $q->where(head($v),last($v));
+                                if (is_array($value)) {
+                                    $query->orWhereHas($field, function ($q) use ($value) {
+                                        foreach ($value as $i => $v) {
+                                            $q->where(head($v), last($v));
                                         }
                                     });
-                                }
-                                else
+                                } else
                                     $query->orHas($field);
                                 break;
-    
+                            
                             // filtre par rapport à une relation :  doesnt Have (ne contient pas)
                             case 'not_has' :
-                                if(is_array($value)){
-                                    $query->whereDoesntHave($field,function($q) use ($value){
-                                        foreach ($value as $i => $v){
-                                            $q->where(head($v),last($v));
+                                if (is_array($value)) {
+                                    $query->whereDoesntHave($field, function ($q) use ($value) {
+                                        foreach ($value as $i => $v) {
+                                            $q->where(head($v), last($v));
                                         }
                                     });
-                                }
-                                else
+                                } else
                                     $query->doesntHave($field);
                                 break;
-    
+                            
                             // filtre par rapport à une relation : ou doesnt Have (ou ne contient pas)
                             case 'or_not_has' :
-                                if(is_array($value)){
-                                    $query->orWhereDoesntHave($field,function($q) use ($value){
-                                        foreach ($value as $i => $v){
-                                            $q->where(head($v),last($v));
+                                if (is_array($value)) {
+                                    $query->orWhereDoesntHave($field, function ($q) use ($value) {
+                                        foreach ($value as $i => $v) {
+                                            $q->where(head($v), last($v));
                                         }
                                     });
-                                }
-                                else
+                                } else
                                     $query->orDoesntHave($field);
                                 break;
                             case 'or_sql' :
                                 if (is_array($field)) {
-                                    $query->where(function ($q) use ($value,$field) {
+                                    $query->where(function ($q) use ($value, $field) {
                                         foreach ($field as $i => $v) {
                                             $q->orWhere($v, '!=', $value);
                                         }
                                     });
-            
+                                    
                                 }
                                 break;
-    
+                            
                             case 'and_or_sql' :
                                 if (is_array($field)) {
                                     if (!is_array($value)) {
                                         $value = explode(',', $value);
                                     }
                                     foreach ($field as $i => $f) {
-                
+                                        
                                         if (is_array($value) && count($value)) {
                                             $query->where(function ($q) use ($f, $value) {
                                                 foreach ($value as $v) {
@@ -381,34 +378,55 @@
                                                         default:
                                                             $q->orWhere($f, $v);
                                                             break;
-                                
+                                                        
                                                     }
-                            
-                            
+                                                    
+                                                    
                                                 }
-                        
+                                                
                                             });
                                         }
                                     }
                                 }
                                 break;
-    
+                            
                             case 'like' :
                                 if (!is_array($value) && !empty($value)) {
                                     $valeur = explode(';', $value);
                                     
                                 }
                                 if (is_array($valeur) && count($valeur) > 1) {
-                                    $query->where(function ($q) use ($valeur, $field) {
-                                        foreach ($valeur as $mot) {
-                                            if (!empty($mot))
-                                                $q->orWhere($field, 'like', "%" . $mot . "%");
-                                        }
-                                    });
+                                    $fields = explode('.', $field);
+                                    if (is_array($fields) && count($fields) == 2) {
+                                        $query->with([$fields[0], function ($q) use ($valeur, $fields) {
+                                            $q->where(function ($qq) use ($valeur, $fields) {
+                                                foreach ($valeur as $mot) {
+                                                    if (!empty($mot))
+                                                        $qq->orWhere($fields[1], 'like', "%" . $mot . "%");
+                                                }
+                                            });
+                                        }]);
+                                        
+                                    } else {
+                                        $query->where(function ($q) use ($valeur, $field) {
+                                            foreach ($valeur as $mot) {
+                                                if (!empty($mot))
+                                                    $q->orWhere($field, 'like', "%" . $mot . "%");
+                                            }
+                                        });
+                                    }
                                     
                                     
-                                } else
-                                    $query->where($field, 'like', "%" . $value . "%");
+                                } else {
+                                    $fields = explode('.', $field);
+                                    if (is_array($fields) && count($fields) == 2) {
+                                        $query->with([$fields[0], function ($q) use ($value, $fields) {
+                                            $q->where($fields[1], 'like', "%" . $value . "%");
+                                        }]);
+                                    } else
+                                        $query->where($field, 'like', "%" . $value . "%");
+                                    
+                                }
                                 break;
                             
                             case 'eq' :
@@ -636,7 +654,7 @@
             return $this->index();
             
         }
-    
+        
         public function beforeRead()
         {
         }
@@ -667,7 +685,7 @@
             
             return $this->success($response);
         }
-    
+        
         public function afterRead()
         {
         }
@@ -680,9 +698,10 @@
                 }
             }
             $this->beforeStore();
+            
             return $this->postCreate();
         }
-    
+        
         public function beforeStore()
         {
         }
@@ -717,11 +736,12 @@
                     $rootData[config('laraextjs.extjs.client_id_property')] = $this->_data[$this->_model->getKeyName()];
                 }
                 $this->afterStore();
+                
                 return $this->success([$this->readerRootProperty => $rootData]);
             }
             
         }
-    
+        
         public function afterStore()
         {
         }
@@ -735,8 +755,10 @@
                 }
             }
             $this->beforeUpdate();
+            
             return $this->putUpdate($id);
         }
+        
         public function beforeUpdate()
         {
         }
@@ -778,13 +800,14 @@
                 }
                 
                 $this->afterUpdate();
+                
                 return $this->success([
                     $this->writerRootProperty => method_exists($model, 'filterByKey') ? $model->filterByKey()->first() : $model->toArray()
                 ]);
             }
             
         }
-    
+        
         public function afterUpdate()
         {
         }
@@ -840,13 +863,14 @@
                 ], 200);
             }
             $this->afterDelete();
+            
             return $this->success();
         }
-    
+        
         public function beforeDelete()
         {
         }
-    
+        
         public function afterDelete()
         {
         }
@@ -936,6 +960,6 @@
             
             return false;
         }
-    
-       
+        
+        
     }
