@@ -393,20 +393,21 @@
                             case 'like' :
                                 if (!is_array($value) && !empty($value)) {
                                     $valeur = explode(';', $value);
-                                    
+        
                                 }
+                                $fields = explode('.', $field);
                                 if (is_array($valeur) && count($valeur) > 1) {
-                                    $fields = explode('.', $field);
+        
                                     if (is_array($fields) && count($fields) == 2) {
-                                        $query->with([$fields[0], function ($q) use ($valeur, $fields) {
+                                        $query->whereHas($fields[0], function ($q) use ($valeur, $fields) {
                                             $q->where(function ($qq) use ($valeur, $fields) {
                                                 foreach ($valeur as $mot) {
                                                     if (!empty($mot))
                                                         $qq->orWhere($fields[1], 'like', "%" . $mot . "%");
                                                 }
                                             });
-                                        }]);
-                                        
+                                        });
+            
                                     } else {
                                         $query->where(function ($q) use ($valeur, $field) {
                                             foreach ($valeur as $mot) {
@@ -415,17 +416,14 @@
                                             }
                                         });
                                     }
-                                    
-                                    
+        
                                 } else {
-                                    $fields = explode('.', $field);
                                     if (is_array($fields) && count($fields) == 2) {
-                                        $query->with([$fields[0], function ($q) use ($value, $fields) {
+                                        $query->whereHas($fields[0], function ($q) use ($value, $fields) {
                                             $q->where($fields[1], 'like', "%" . $value . "%");
-                                        }]);
+                                        });
                                     } else
                                         $query->where($field, 'like', "%" . $value . "%");
-                                    
                                 }
                                 break;
                             
