@@ -16,16 +16,10 @@ $ composer require webplusm/laraextjs
 ```
 
 ## Usage
-@Todo
+If you want some help, please send me an email.
 ## Change log
 
 Please see the [changelog](changelog.md) for more information on what has changed recently.
-
-## Testing
-
-``` bash
-$ composer test
-```
 
 ## Contributing
 
