@@ -12,10 +12,10 @@
     "homepage": "https://github.com/webplusmultimedia/LaraExtjs",
     "keywords": ["Laravel", "LaraExtjs","Extjs"],
     "require": {
-        "illuminate/support": "~5"
+        "illuminate/support": "~6"
     },
     "require-dev": {
-        "phpunit/phpunit": "~6.0",
+        "phpunit/phpunit": "~8.0",
         "orchestra/testbench": "~3.0"
     },
     "autoload": {
